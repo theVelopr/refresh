@@ -1,4 +1,4 @@
-package ch05.s05.P10;
+package ch05.s05.p10;
 
 import java.util.function.*;
 
