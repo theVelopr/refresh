@@ -140,6 +140,6 @@ public class Main {
             return Arrays.stream(s.split(""));
         }).forEach(System.out::println); // 한 문자씩 떼어내서 출력함.(v)
 
-        //todo 조회 
+        //todo 조회
     }
 }
