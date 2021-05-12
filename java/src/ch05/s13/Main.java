@@ -1,14 +1,8 @@
 package ch05.s13;
 
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.*;
 
 /**
  * Stream API
@@ -139,7 +133,145 @@ public class Main {
         list2.stream().flatMap(s -> {
             return Arrays.stream(s.split(""));
         }).forEach(System.out::println); // 한 문자씩 떼어내서 출력함.(v)
+        System.out.println();
 
-        //todo 조회
+        /**
+         * 조회 (Peek)
+         * - 중간 결과를 출력해볼 수 있음 (디버깅 가능)
+         * peek() -> Consumer 계열을 람다식 입력으로 받아 입력 요소를 소비
+         * peek()은 입력받은 스트림과 동일한 스트림을 다시 출력
+         */
+        System.out.println(list2.stream().flatMap(s -> {
+            return Arrays.stream(s.split(""));
+        }).peek(s-> System.out.println("flatMap(): " + s))
+          .distinct().peek(s -> System.out.println("distinct(): " + s))
+          .count());
+        System.out.println();
+        /**
+         * flatMap(): j, flatMap(): a, flatMap(): v, flatMap(): a
+         * distinct(): j, distinct(): a, distinct(): v
+         *
+         * flatMap(): b,  flatMap(): a,  flatMap(): c,  flatMap(): k,  flatMap(): e, flatMap(): n, flatMap(): d
+         * distinct(): b,  distinct(): c, distinct(): k, distinct(): e, distinct(): n, distinct(): d
+         *
+         * flatMap(): b, flatMap(): e, flatMap(): s, flatMap(): t
+         * distinct(): s, distinct(): t
+         *
+         * flatMap(): c, flatMap(): o, flatMap(): u, flatMap(): r, flatMap(): s, flatMap(): e
+         * distinct(): o, distinct(): u, distinct(): r
+         * 14 <- distinct count
+         * (v)
+         */
+
+        /**
+         * 최종처리 메소드
+         * - 스트림을 반환하지 않음 (void일 수도 있고, 무언가 리턴 할 수도 있고..)
+         * 매칭계열 - boolean 타입의 값을 리턴
+         *  - allMatch(), anyMatch(), noneMatch()
+         * Predicate 계열 - 람다식을 입력받아,
+         *      allMatch(Predicate<T> predicate) : 모든 요소가 true일 경우 true를 리턴
+         *      anyMatch(Predicate<T> predicate) : 하나라도 요소가 true일 경우 true 리턴
+         *      noneMatch(Predicate<T> predicate) : 모든 요소가 false이면 true를 리턴
+         */
+        Stream<String> st0 = Stream.of("abc", "cde", "efg");
+        System.out.println("allMatch: " + st0.allMatch(s -> s.equals("abc"))); // allMatch: false (v)
+
+        st0 = Stream.of("abc", "cde", "efg");
+        System.out.println("anyMatch: " + st0.anyMatch(s -> s.equals("abc"))); // allMatch: true (v)
+
+        st0 = Stream.of("abc", "cde", "efg");
+        System.out.println("noneMatch: " + st0.noneMatch(s -> s.equals("abce"))); // noneMatch: true (v)
+        System.out.println();
+
+        /**
+         * 집계 (통계)
+         * 기본형 스트림 (Int, Long, Double) - count(), sum(), average(), min(), max()
+         * Stream<T> 타입 스트림 - count(), min(), max() -> (min과 max는 Comparator 구현 필요)
+         *      (o1, o2) -> ~~~~
+         * reduce() 메소드 -> 사용자 정의 집계 메소드
+         */
+        // todo 이해못함 - 강의참조
+        System.out.println(IntStream.range(0, 10) // sum()
+                .reduce(0, (value1, value2)-> value1 + value2)); // 45
+        System.out.println(IntStream.range(0, 10) // min()
+                .reduce(Integer.MAX_VALUE, (value1, value2)-> value1 < value2 ? value1 : value2)); // 0
+        System.out.println();
+
+
+        /**
+         * 반복 - Consumer 계열
+         * forEach() -> consumer 계열의 람다식을 입력받아, 각 요소를 소비
+         * forEach()는 void 출력
+         *
+         * 수집 - Collection으로 변환하는 collect() 메소드
+         * Strea API는 JCF -> Stream -> 처리 -> 결과 (출력, 값, Collection)
+         *
+         * Collectors 클래서의 정적 메소드를 이용하는 방법
+         *  toList() 메소드를 쓸 경우, ArrayLIst로 collect 하는 collector 반환
+         */
+        String[] array = {"Collection", "Framework", "is", "so", "cool"};
+        Stream<String> stream3 = Arrays.stream(array);
+        List<String> collected = stream3.filter(s -> s.length() >= 3)
+                // ArrayList
+                //.collect(Collectors.toList()); // [Collection, Framework, cool] (v)
+                // LinkedLIst
+                .collect(Collectors.toCollection(LinkedList::new)); // [Collection, Framework, cool] (v)
+        System.out.println(collected);
+        System.out.println();
+
+        // toSet() 메소드를 쓸 경우, HashSet으로 collect하는 Collector 반환
+        Stream<String> stream4 = Arrays.stream(array);
+        Set<String> collected2 = stream4.filter(s -> s.length() >= 3)
+                // hashSet
+                //.collect(Collectors.toSet()); // [cool, Collection, Framework] (v)
+                // same thing
+                .collect(Collectors.toCollection(HashSet::new)); // [cool, Collection, Framework] (v)
+        System.out.println(collected2);
+        System.out.println();
+
+        // Map<K, V> Map.Entry<K, V>
+        Stream<String> stream5 = Arrays.stream(array);
+        Map<String, Integer> collected3 = stream5.filter(s -> s.length() >= 3)
+                // hashMap
+                .collect(Collectors.toMap(s -> s, String::length)); // {cool=4, Collection=10, Framework=9} (v)
+        System.out.println(collected3);
+        System.out.println();
+
+        // 그룹화 / 분리 - groupingBy, partioningBy
+        String [] arr = {"Python", "is", "awful", "lame", "not", "good"};
+        Map<Integer, List<String>> map = Arrays.stream(arr)
+                .collect(Collectors.groupingBy(String::length));
+        System.out.println(map); // {2=[is], 3=[not], 4=[lame, good], 5=[awful], 6=[Python]} (v)
+
+        Map<Boolean, List<String>> map2 = Arrays.stream(arr)
+                .collect(Collectors.partitioningBy(s -> s.length() < 4));
+        System.out.println(map2); // {false=[Python, awful, lame, good], true=[is, not]} (v)
+
+        /**
+         *  그룹화 + Downstream collector
+         *   - 최종 처리 메소드에서 있던  count(), min() ... 등과 유사한
+         *     Collector중에도  counting(), minBy(), maxBy(), ... 등이 있다.
+         */
+        Map<Integer, Long> map3 = Arrays.stream(arr)
+                .collect(Collectors.groupingBy(String::length, Collectors.counting()));
+        System.out.println(map3); // {2=1, 3=1, 4=2, 5=1, 6=1} (v)
+        System.out.println();
+
+        // 병렬 스트림
+        Stream<String> parStream = Arrays.stream(arr).parallel();
+        System.out.println(parStream.map(String::length).count()); // 6
+
+        // todo .of인식관련으로 진행 불가. 강의 참조
+        /*
+        List<String> list4 = List.of("atwe","bff","cqqqw","dtwer");
+
+        // parallelStream을 사용하면 연산 순서가 달라질 수 있다.
+        Stream<String> stream6 = list4.parallelStream();
+        stream6.map(String::length)
+                .peek(s -> System.out.println("A: " + s))
+                .filter(value -> value > 3)
+                .peek(s -> System.out.println("B: " + s))
+                .forEach(System.out::println);
+         */
     }
 }
