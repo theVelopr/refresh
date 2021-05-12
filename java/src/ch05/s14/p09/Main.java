@@ -10,7 +10,7 @@ import java.util.Vector;
  */
 
 // todo 정확이 어떻게 돌아가는지 이해못함.
-    
+
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         List<Integer> list1 = new Vector<>();
