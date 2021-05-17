@@ -1,4 +1,4 @@
-package p01;
+package junit.main.java.p01;
 
 @FunctionalInterface
 public interface Scorable {

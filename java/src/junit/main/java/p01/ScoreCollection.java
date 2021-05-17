@@ -1,4 +1,4 @@
-package p01;
+package junit.main.java.p01;
 
 import java.util.ArrayList;
 import java.util.List;

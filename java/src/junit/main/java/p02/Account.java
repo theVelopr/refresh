@@ -1,4 +1,4 @@
-package p02;
+package junit.main.java.p02;
 
 public class Account {
     private int balance;
