@@ -1,4 +1,4 @@
-package ch04.p01;
+package ch04.s01;
 
 /**
  * 추상 클래스(Abstract Class)
