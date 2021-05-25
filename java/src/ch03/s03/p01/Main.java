@@ -1,7 +1,7 @@
 package ch03.s03.p01;
 
 /**
- * 상속 (Inheritence)
+ * 상속 (Inheritance)
  * 'IS-A' 관계
  */
 
